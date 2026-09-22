@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+```
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<meta
+    name="description"
+    content="PragyanAI PDF Merger"
+>
+
+<title>
+    PragyanAI PDF Merger
+</title>
+
+<link
+    rel="stylesheet"
+    href="style.css"
+>
+```
+
+</head>
+
+<body>
+
+```
+<!-- ==================================================
+     HEADER
+=================================================== -->
+
+<header class="header">
+
+    <div class="container">
+
+        <h1>
+            PragyanAI PDF Merger
+        </h1>
+
+        <p>
+            Upload, Merge and Download PDF Files
+        </p>
+
+        <span class="technology-badge">
+            HTML + CSS + JavaScript + FastAPI
+        </span>
+
+    </div>
+
+</header>
+
+
+<!-- ==================================================
+     MAIN
+=================================================== -->
+
+<main class="container main-content">
+
+
+    <!-- ==================================================
+         API STATUS
+    =================================================== -->
+
+    <section class="status-card">
+
+        <div>
+
+            <h3>
+                Backend API Status
+            </h3>
+
+            <p id="apiStatus">
+                Checking backend...
+            </p>
+
+        </div>
+
+        <span
+            id="statusIndicator"
+            class="status-indicator checking"
+        >
+            ●
+        </span>
+
+    </section>
+
+
+    <!-- ==================================================
+         MERGE PDF
+    =================================================== -->
+
+    <section class="card">
+
+        <div class="section-header">
+
+            <div class="section-number">
+                1
+            </div>
+
+            <div>
+
+                <h2>
+                    Merge PDF Files
+                </h2>
+
+                <p>
+                    Select two or more PDF files to merge them into one PDF.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <label for="pdfFiles">
+            Select PDF Files
+        </label>
+
+
+        <input
+            type="file"
+            id="pdfFiles"
+            accept="application/pdf"
+            multiple
+        >
+
+
+        <p class="file-help">
+            Supported: PDF files | Select multiple files
+        </p>
+
+
+        <!-- Selected Files -->
+
+        <div
+            id="fileList"
+            class="preview-container hidden"
+        >
+
+            <h3>
+                Selected PDF Files
+            </h3>
+
+            <ul id="selectedFiles"></ul>
+
+        </div>
+
+
+        <button
+            id="mergeButton"
+            class="primary-button"
+            disabled
+        >
+            📄 Merge PDF Files
+        </button>
+
+
+        <div
+            id="mergeMessage"
+            class="message"
+        ></div>
+
+
+        <!-- Download Result -->
+
+        <div
+            id="resultContainer"
+            class="qr-container hidden"
+        >
+
+            <h3>
+                PDF Merged Successfully
+            </h3>
+
+            <p>
+                Your PDF files have been merged into one document.
+            </p>
+
+
+            <div class="qr-actions">
+
+                <a
+                    id="downloadButton"
+                    class="secondary-button"
+                    download="merged.pdf"
+                >
+                    ⬇️ Download Merged PDF
+                </a>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ==================================================
+         HOW IT WORKS
+    =================================================== -->
+
+    <section class="card">
+
+        <div class="section-header">
+
+            <div class="section-number">
+                2
+            </div>
+
+            <div>
+
+                <h2>
+                    How It Works
+                </h2>
+
+                <p>
+                    Simple steps to merge your PDF files.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="technology-grid">
+
+            <div class="technology-item">
+
+                <strong>
+                    Step 1
+                </strong>
+
+                <span>
+                    Select multiple PDF files
+                </span>
+
+            </div>
+
+
+            <div class="technology-item">
+
+                <strong>
+                    Step 2
+                </strong>
+
+                <span>
+                    Upload files to the backend
+                </span>
+
+            </div>
+
+
+            <div class="technology-item">
+
+                <strong>
+                    Step 3
+                </strong>
+
+                <span>
+                    FastAPI merges the PDFs
+                </span>
+
+            </div>
+
+
+            <div class="technology-item">
+
+                <strong>
+                    Step 4
+                </strong>
+
+                <span>
+                    Download the merged PDF
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ==================================================
+         API INFORMATION
+    =================================================== -->
+
+    <section class="card">
+
+        <div class="section-header">
+
+            <div class="section-number">
+                3
+            </div>
+
+            <div>
+
+                <h2>
+                    API Information
+                </h2>
+
+                <p>
+                    FastAPI backend endpoints.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="api-grid">
+
+
+            <div class="api-item">
+
+                <span class="method get">
+                    GET
+                </span>
+
+                <code>
+                    /
+                </code>
+
+                <p>
+                    API information
+                </p>
+
+            </div>
+
+
+            <div class="api-item">
+
+                <span class="method get">
+                    GET
+                </span>
+
+                <code>
+                    /health
+                </code>
+
+                <p>
+                    Health check
+                </p>
+
+            </div>
+
+
+            <div class="api-item">
+
+                <span class="method post">
+                    POST
+                </span>
+
+                <code>
+                    /merge
+                </code>
+
+                <p>
+                    Merge PDF files
+                </p>
+
+            </div>
+
+
+            <div class="api-item">
+
+                <span class="method get">
+                    GET
+                </span>
+
+                <code>
+                    /info
+                </code>
+
+                <p>
+                    Application information
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <a
+            id="swaggerLink"
+            class="docs-button"
+            href="#"
+            target="_blank"
+        >
+            📘 Open Swagger API Documentation
+        </a>
+
+    </section>
+
+
+    <!-- ==================================================
+         TECHNOLOGY STACK
+    =================================================== -->
+
+    <section class="card">
+
+        <div class="section-header">
+
+            <div class="section-number">
+                4
+            </div>
+
+            <div>
+
+                <h2>
+                    Technology Stack
+                </h2>
+
+                <p>
+                    Technologies used in this project.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="technology-grid">
+
+
+            <div class="technology-item">
+
+                <strong>
+                    Frontend
+                </strong>
+
+                <span>
+                    HTML + CSS + JavaScript
+                </span>
+
+            </div>
+
+
+            <div class="technology-item">
+
+                <strong>
+                    Fronte
+```
