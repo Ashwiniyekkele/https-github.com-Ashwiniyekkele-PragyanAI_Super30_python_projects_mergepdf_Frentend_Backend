@@ -1,0 +1,15 @@
+{
+"app_name": "PragyanAI PDF Merger",
+"version": "1.0.0",
+"description": "PDF Merger using FastAPI and PyPDF",
+
+```
+"cors_origins": [
+    "*",
+    "https://melodious-pithivier-7033a1.netlify.app/"
+],
+
+"max_upload_size_mb": 10
+```
+
+}
