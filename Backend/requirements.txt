@@ -1,0 +1,6 @@
+```text
+fastapi
+uvicorn[standard]
+python-multipart
+pypdf
+```
