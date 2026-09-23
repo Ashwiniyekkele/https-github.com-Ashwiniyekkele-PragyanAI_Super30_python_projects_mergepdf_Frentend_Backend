@@ -32,8 +32,12 @@ with open(CONFIG_FILE, "r", encoding="utf-8") as file:
 # APPLICATION SETTINGS
 # ============================================================
 
-APP_NAME = config.get("application", {}).get("name", "DefaultAppName")
-APP_VERSION = config["application"]["version"]
+# Safely get the application dictionary, defaulting to an empty dict if missing
+app_config = config.get("application", {})
+
+# Safely get the version, defaulting to "0.0.1" if missing
+APP_VERSION = app_config.get("version", "0.0.1")
+
 
 HOST = config["server"]["host"]
 PORT = config["server"]["port"]
