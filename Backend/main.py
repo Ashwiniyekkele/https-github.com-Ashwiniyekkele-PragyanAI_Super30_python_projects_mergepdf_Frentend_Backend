@@ -1,137 +1,86 @@
-# ============================================================
-# MergePDF - FastAPI Backend
-# ============================================================
-
 import json
-import os
 import shutil
 from pathlib import Path
 
 from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
-from fastapi import Request
 
-from pypdf import PdfWriter
+from utils import merge_pdf_files
+
+
+# ============================================================
+# PATHS
+# ============================================================
+
+BASE_DIR = Path(__file__).resolve().parent
+
+CONFIG_FILE = BASE_DIR / "config.json"
+UPLOAD_DIR = BASE_DIR / "uploads"
+OUTPUT_DIR = BASE_DIR / "output"
+
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
 # ============================================================
 # LOAD CONFIGURATION
 # ============================================================
 
-BASE_DIR = Path(__file__).resolve().parent
-
-CONFIG_FILE = BASE_DIR / "config.json"
-
 with open(CONFIG_FILE, "r", encoding="utf-8") as file:
     config = json.load(file)
 
 
-# ============================================================
-# APPLICATION SETTINGS
-# ============================================================
+APP_NAME = config["app_name"]
+APP_VERSION = config["version"]
 
-# Safely get the application dictionary, defaulting to an empty dict if missing
-app_config = config.get("application", {})
+MAX_UPLOAD_SIZE_MB = config["max_upload_size_mb"]
+MAX_FILES = config["max_files"]
 
-# Safely get the version, defaulting to "0.0.1" if missing
-APP_VERSION = app_config.get("version", "0.0.1")
-
-
-HOST = config["server"]["host"]
-PORT = config["server"]["port"]
-
-
-# ============================================================
-# PDF SETTINGS
-# ============================================================
-
-ALLOWED_EXTENSIONS = tuple(
-    config["pdf"]["allowed_extensions"]
+ALLOWED_FILE_TYPES = tuple(
+    extension.lower()
+    for extension in config["allowed_file_types"]
 )
 
-MAX_FILES = config["pdf"]["max_files"]
+OUTPUT_FILENAME = config["output_filename"]
 
-MAX_FILE_SIZE_MB = config["pdf"]["max_file_size_mb"]
-
-MAX_FILE_SIZE = MAX_FILE_SIZE_MB * 1024 * 1024
-
-OUTPUT_FILENAME = config["pdf"]["output_filename"]
+CORS_ORIGINS = config["cors_origins"]
 
 
 # ============================================================
-# FOLDER SETTINGS
-# ============================================================
-
-UPLOAD_FOLDER = BASE_DIR / config["folders"]["upload"]
-
-OUTPUT_FOLDER = BASE_DIR / config["folders"]["output"]
-
-TEMPLATES_FOLDER = BASE_DIR / config["folders"]["templates"]
-
-STATIC_FOLDER = BASE_DIR / config["folders"]["static"]
-
-
-# ============================================================
-# CREATE REQUIRED FOLDERS
-# ============================================================
-
-UPLOAD_FOLDER.mkdir(
-    parents=True,
-    exist_ok=True
-)
-
-OUTPUT_FOLDER.mkdir(
-    parents=True,
-    exist_ok=True
-)
-
-
-# ============================================================
-# CREATE FASTAPI APPLICATION
+# FASTAPI APP
 # ============================================================
 
 app = FastAPI(
     title=APP_NAME,
-    version=APP_VERSION,
-    description="Merge multiple PDF files into one PDF file."
+    version=APP_VERSION
 )
 
 
 # ============================================================
-# STATIC FILES
+# CORS
 # ============================================================
 
-app.mount(
-    "/static",
-    StaticFiles(directory=str(STATIC_FOLDER)),
-    name="static"
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=CORS_ORIGINS,
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"]
 )
 
 
 # ============================================================
-# TEMPLATES
-# ============================================================
-
-templates = Jinja2Templates(
-    directory=str(TEMPLATES_FOLDER)
-)
-
-
-# ============================================================
-# HOME PAGE
+# ROOT
 # ============================================================
 
 @app.get("/")
-async def home(request: Request):
-
-    return templates.TemplateResponse(
-        "index.html",
-        {
-            "request": request
-        }
-    )
+async def home():
+    return {
+        "message": "MergePDF API is running",
+        "application": APP_NAME,
+        "version": APP_VERSION
+    }
 
 
 # ============================================================
@@ -140,16 +89,13 @@ async def home(request: Request):
 
 @app.get("/health")
 async def health():
-
     return {
-        "status": "success",
-        "application": APP_NAME,
-        "message": "MergePDF backend is running"
+        "status": "healthy"
     }
 
 
 # ============================================================
-# MERGE PDF FILES
+# MERGE PDF
 # ============================================================
 
 @app.post("/merge")
@@ -158,219 +104,149 @@ async def merge_pdfs(
 ):
 
     # --------------------------------------------------------
-    # CHECK NUMBER OF FILES
+    # Check number of files
     # --------------------------------------------------------
 
     if len(files) < 2:
-
         raise HTTPException(
             status_code=400,
             detail="Please upload at least 2 PDF files."
         )
 
-
     if len(files) > MAX_FILES:
-
         raise HTTPException(
             status_code=400,
             detail=f"You can upload maximum {MAX_FILES} PDF files."
         )
 
 
-    # --------------------------------------------------------
-    # CREATE PDF WRITER
-    # --------------------------------------------------------
-
-    writer = PdfWriter()
-
-    uploaded_paths = []
+    uploaded_files = []
 
     try:
 
         # ----------------------------------------------------
-        # PROCESS EACH FILE
+        # Save uploaded files
         # ----------------------------------------------------
 
         for index, uploaded_file in enumerate(files):
 
-            filename = uploaded_file.filename or ""
-
-            extension = Path(filename).suffix.lower()
-
-
-            # ------------------------------------------------
-            # CHECK FILE EXTENSION
-            # ------------------------------------------------
-
-            if extension not in ALLOWED_EXTENSIONS:
-
+            if not uploaded_file.filename:
                 raise HTTPException(
                     status_code=400,
-                    detail=f"{filename} is not a valid PDF file."
+                    detail="Invalid file name."
                 )
 
+            extension = Path(
+                uploaded_file.filename
+            ).suffix.lower()
 
-            # ------------------------------------------------
-            # CREATE SAFE FILE NAME
-            # ------------------------------------------------
+            if extension not in ALLOWED_FILE_TYPES:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Only PDF files are allowed: "
+                           f"{uploaded_file.filename}"
+                )
 
-            safe_filename = (
-                f"file_{index + 1}{extension}"
+            file_path = (
+                UPLOAD_DIR /
+                f"{index}_{Path(uploaded_file.filename).name}"
             )
 
-            file_path = UPLOAD_FOLDER / safe_filename
+            content = await uploaded_file.read()
 
+            max_size_bytes = (
+                MAX_UPLOAD_SIZE_MB * 1024 * 1024
+            )
 
-            # ------------------------------------------------
-            # SAVE UPLOADED FILE
-            # ------------------------------------------------
-
-            file_size = 0
-
-            with open(file_path, "wb") as buffer:
-
-                while True:
-
-                    chunk = await uploaded_file.read(1024 * 1024)
-
-                    if not chunk:
-                        break
-
-                    file_size += len(chunk)
-
-
-                    # ----------------------------------------
-                    # CHECK FILE SIZE
-                    # ----------------------------------------
-
-                    if file_size > MAX_FILE_SIZE:
-
-                        raise HTTPException(
-                            status_code=400,
-                            detail=(
-                                f"{filename} exceeds the "
-                                f"{MAX_FILE_SIZE_MB} MB limit."
-                            )
-                        )
-
-                    buffer.write(chunk)
-
-
-            uploaded_paths.append(file_path)
-
-
-            # ------------------------------------------------
-            # ADD PDF TO WRITER
-            # ------------------------------------------------
-
-            try:
-
-                writer.append(str(file_path))
-
-            except Exception:
-
+            if len(content) > max_size_bytes:
                 raise HTTPException(
                     status_code=400,
                     detail=(
-                        f"{filename} is corrupted or "
-                        "is not a valid PDF."
+                        f"{uploaded_file.filename} is larger than "
+                        f"{MAX_UPLOAD_SIZE_MB} MB."
                     )
                 )
 
+            with open(file_path, "wb") as file:
+                file.write(content)
 
-        # ----------------------------------------------------
-        # OUTPUT FILE
-        # ----------------------------------------------------
-
-        output_path = OUTPUT_FOLDER / OUTPUT_FILENAME
-
-
-        # Remove previous output file
-        if output_path.exists():
-
-            output_path.unlink()
+            uploaded_files.append(str(file_path))
 
 
         # ----------------------------------------------------
-        # WRITE MERGED PDF
+        # Output file
         # ----------------------------------------------------
 
-        with open(output_path, "wb") as output_file:
-
-            writer.write(output_file)
-
-
-        # Close writer
-        writer.close()
+        output_file = OUTPUT_DIR / OUTPUT_FILENAME
 
 
         # ----------------------------------------------------
-        # RETURN MERGED PDF
+        # Merge PDFs
+        # ----------------------------------------------------
+
+        merge_pdf_files(
+            uploaded_files,
+            str(output_file)
+        )
+
+
+        # ----------------------------------------------------
+        # Return merged PDF
         # ----------------------------------------------------
 
         return FileResponse(
-            path=str(output_path),
+            path=str(output_file),
             media_type="application/pdf",
             filename=OUTPUT_FILENAME
         )
 
 
     except HTTPException:
-
         raise
-
 
     except Exception as error:
 
-        print("Merge Error:", error)
-
         raise HTTPException(
             status_code=500,
-            detail="An error occurred while merging PDF files."
+            detail=f"PDF merge failed: {str(error)}"
         )
-
 
     finally:
 
         # ----------------------------------------------------
-        # CLOSE UPLOADED FILES
+        # Delete temporary uploaded files
         # ----------------------------------------------------
 
-        for uploaded_file in files:
-
-            await uploaded_file.close()
-
-
-        # ----------------------------------------------------
-        # DELETE TEMPORARY UPLOADS
-        # ----------------------------------------------------
-
-        for file_path in uploaded_paths:
+        for file_path in uploaded_files:
 
             try:
 
-                if file_path.exists():
+                path = Path(file_path)
 
-                    file_path.unlink()
+                if path.exists():
+                    path.unlink()
 
-            except Exception as error:
-
-                print(
-                    f"Could not delete {file_path}: {error}"
-                )
+            except Exception:
+                pass
 
 
 # ============================================================
-# RUN APPLICATION
+# DOWNLOAD ENDPOINT
 # ============================================================
 
-if __name__ == "__main__":
+@app.get("/download")
+async def download_pdf():
 
-    import uvicorn
+    output_file = OUTPUT_DIR / OUTPUT_FILENAME
 
-    uvicorn.run(
-        "main:app",
-        host=HOST,
-        port=PORT,
-        reload=True
-    )
+    if not output_file.exists():
+        raise HTTPException(
+            status_code=404,
+            detail="Merged PDF not found."
+        )
+
+    return FileResponse(
+        path=str(output_file),
+        media_type="application/pdf",
+        filename=OUTPUT_FILENAME
+)
