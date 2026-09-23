@@ -5,7 +5,7 @@
 
     "cors_origins": [
         "*",
-        "https://melodious-pithivier-7033a1.netlify.app/"
+        "https://peppy-bubblegum-5af459.netlify.app/"
     ],
 
     "max_upload_size_mb": 50,
