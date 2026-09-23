@@ -32,7 +32,7 @@ with open(CONFIG_FILE, "r", encoding="utf-8") as file:
 # APPLICATION SETTINGS
 # ============================================================
 
-APP_NAME = config["application"]["name"]
+APP_NAME = config.get("application", {}).get("name", "DefaultAppName")
 APP_VERSION = config["application"]["version"]
 
 HOST = config["server"]["host"]
