@@ -1,444 +1,393 @@
-
-     HEADER
-=================================================== -->
-
-<header class="header">
-
-    <div class="container">
-
-        <h1>
-            PragyanAI PDF Merger
-        </h1>
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta
-    name="description"
-    content="PragyanAI PDF Merger"
->
+    <title>MergePDF - PDF Merger</title>
 
-<title>
-    PragyanAI PDF Merger
-</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
 
-<link
-    rel="stylesheet"
-    href="style.css"
->
+        body {
+            background: #f4f6f8;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
+        .container {
+            width: 90%;
+            max-width: 700px;
+            background: white;
+            padding: 35px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        h1 {
+            text-align: center;
+            color: #222;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .upload-box {
+            border: 2px dashed #777;
+            border-radius: 12px;
+            padding: 35px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .upload-box:hover {
+            border-color: #007bff;
+            background: #f8fbff;
+        }
+
+        .upload-box p {
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        #pdfFiles {
+            display: none;
+        }
+
+        .choose-btn {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 7px;
+            cursor: pointer;
+        }
+
+        .file-section {
+            margin-top: 25px;
+        }
+
+        .file-section h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        #fileList {
+            list-style: none;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f1f3f5;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 7px;
+        }
+
+        .file-name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 80%;
+        }
+
+        .remove-btn {
+            border: none;
+            background: #dc3545;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .merge-btn {
+            width: 100%;
+            margin-top: 25px;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            background: #28a745;
+            color: white;
+            font-size: 17px;
+            cursor: pointer;
+        }
+
+        .merge-btn:hover {
+            background: #218838;
+        }
+
+        .merge-btn:disabled {
+            background: #aaa;
+            cursor: not-allowed;
+        }
+
+        #status {
+            text-align: center;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        #downloadLink {
+            display: none;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        #downloadLink a {
+            display: inline-block;
+            background: #6f42c1;
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 7px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                width: 95%;
+                padding: 25px;
+            }
+
+            .upload-box {
+                padding: 25px;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-```
-<!-- ==================================================
-        <p>
-            Upload, Merge and Download PDF Files
+    <div class="container">
+
+        <h1>MergePDF</h1>
+
+        <p class="subtitle">
+            Merge multiple PDF files into one PDF
         </p>
 
-        <span class="technology-badge">
-            HTML + CSS + JavaScript + FastAPI
-        </span>
+        <!-- Upload Area -->
+        <div class="upload-box"
+             onclick="document.getElementById('pdfFiles').click()">
+
+            <p>📄 Select PDF files to merge</p>
+
+            <label for="pdfFiles" class="choose-btn"
+                   onclick="event.stopPropagation()">
+                Choose PDF Files
+            </label>
+
+            <input
+                type="file"
+                id="pdfFiles"
+                accept=".pdf,application/pdf"
+                multiple
+            >
+        </div>
+
+        <!-- Selected Files -->
+        <div class="file-section">
+
+            <h3>Selected Files</h3>
+
+            <ul id="fileList"></ul>
+
+        </div>
+
+        <!-- Merge Button -->
+        <button
+            id="mergeBtn"
+            class="merge-btn"
+            disabled
+            onclick="mergePDFs()">
+
+            Merge PDFs
+
+        </button>
+
+        <!-- Status -->
+        <div id="status"></div>
+
+        <!-- Download -->
+        <div id="downloadLink">
+            <a id="downloadBtn" href="#">
+                Download Merged PDF
+            </a>
+        </div>
 
     </div>
 
-</header>
 
+    <script>
 
-<!-- ==================================================
-     MAIN
-=================================================== -->
+        let selectedFiles = [];
 
-<main class="container main-content">
+        const fileInput = document.getElementById("pdfFiles");
+        const fileList = document.getElementById("fileList");
+        const mergeBtn = document.getElementById("mergeBtn");
+        const status = document.getElementById("status");
+        const downloadLink = document.getElementById("downloadLink");
+        const downloadBtn = document.getElementById("downloadBtn");
 
 
-    <!-- ==================================================
-         API STATUS
-    =================================================== -->
+        // Select PDF files
+        fileInput.addEventListener("change", function () {
 
-    <section class="status-card">
+            const files = Array.from(this.files);
 
-        <div>
+            files.forEach(function (file) {
 
-            <h3>
-                Backend API Status
-            </h3>
+                if (file.type === "application/pdf" ||
+                    file.name.toLowerCase().endsWith(".pdf")) {
 
-            <p id="apiStatus">
-                Checking backend...
-            </p>
+                    selectedFiles.push(file);
 
-        </div>
+                }
 
-        <span
-            id="statusIndicator"
-            class="status-indicator checking"
-        >
-            ●
-        </span>
+            });
 
-    </section>
+            displayFiles();
 
+            fileInput.value = "";
 
-    <!-- ==================================================
-         MERGE PDF
-    =================================================== -->
+        });
 
-    <section class="card">
 
-        <div class="section-header">
+        // Display selected files
+        function displayFiles() {
 
-            <div class="section-number">
-                1
-            </div>
+            fileList.innerHTML = "";
 
-            <div>
+            selectedFiles.forEach(function (file, index) {
 
-                <h2>
-                    Merge PDF Files
-                </h2>
+                const li = document.createElement("li");
 
-                <p>
-                    Select two or more PDF files to merge them into one PDF.
-                </p>
+                li.className = "file-item";
 
-            </div>
+                li.innerHTML = `
+                    <span class="file-name">
+                        ${index + 1}. ${file.name}
+                    </span>
 
-        </div>
+                    <button
+                        class="remove-btn"
+                        onclick="removeFile(${index})">
+                        Remove
+                    </button>
+                `;
 
+                fileList.appendChild(li);
 
-        <label for="pdfFiles">
-            Select PDF Files
-        </label>
+            });
 
+            mergeBtn.disabled = selectedFiles.length < 2;
 
-        <input
-            type="file"
-            id="pdfFiles"
-            accept="application/pdf"
-            multiple
-        >
+        }
 
 
-        <p class="file-help">
-            Supported: PDF files | Select multiple files
-        </p>
+        // Remove file
+        function removeFile(index) {
 
+            selectedFiles.splice(index, 1);
 
-        <!-- Selected Files -->
+            displayFiles();
 
-        <div
-            id="fileList"
-            class="preview-container hidden"
-        >
+        }
 
-            <h3>
-                Selected PDF Files
-            </h3>
 
-            <ul id="selectedFiles"></ul>
+        // Merge PDFs
+        async function mergePDFs() {
 
-        </div>
+            if (selectedFiles.length < 2) {
 
+                status.style.color = "red";
+                status.innerText = "Please select at least 2 PDF files.";
 
-        <button
-            id="mergeButton"
-            class="primary-button"
-            disabled
-        >
-            📄 Merge PDF Files
-        </button>
+                return;
 
+            }
 
-        <div
-            id="mergeMessage"
-            class="message"
-        ></div>
+            const formData = new FormData();
 
+            selectedFiles.forEach(function (file) {
 
-        <!-- Download Result -->
+                formData.append("files", file);
 
-        <div
-            id="resultContainer"
-            class="qr-container hidden"
-        >
+            });
 
-            <h3>
-                PDF Merged Successfully
-            </h3>
 
-            <p>
-                Your PDF files have been merged into one document.
-            </p>
+            mergeBtn.disabled = true;
 
+            status.style.color = "#007bff";
+            status.innerText = "Merging PDFs...";
 
-            <div class="qr-actions">
+            downloadLink.style.display = "none";
 
-                <a
-                    id="downloadButton"
-                    class="secondary-button"
-                    download="merged.pdf"
-                >
-                    ⬇️ Download Merged PDF
-                </a>
 
-            </div>
+            try {
 
-        </div>
+                const response = await fetch("/merge", {
 
-    </section>
+                    method: "POST",
 
+                    body: formData
 
-    <!-- ==================================================
-         HOW IT WORKS
-    =================================================== -->
+                });
 
-    <section class="card">
 
-        <div class="section-header">
+                if (!response.ok) {
 
-            <div class="section-number">
-                2
-            </div>
+                    throw new Error("Failed to merge PDFs.");
 
-            <div>
+                }
 
-                <h2>
-                    How It Works
-                </h2>
 
-                <p>
-                    Simple steps to merge your PDF files.
-                </p>
+                const blob = await response.blob();
 
-            </div>
+                const url = window.URL.createObjectURL(blob);
 
-        </div>
 
+                downloadBtn.href = url;
 
-        <div class="technology-grid">
+                downloadBtn.download = "merged.pdf";
 
-            <div class="technology-item">
+                downloadLink.style.display = "block";
 
-                <strong>
-                    Step 1
-                </strong>
+                status.style.color = "green";
+                status.innerText = "PDFs merged successfully!";
 
-                <span>
-                    Select multiple PDF files
-                </span>
 
-            </div>
+            } catch (error) {
 
+                console.error(error);
 
-            <div class="technology-item">
+                status.style.color = "red";
 
-                <strong>
-                    Step 2
-                </strong>
+                status.innerText =
+                    "Error merging PDFs. Please try again.";
 
-                <span>
-                    Upload files to the backend
-                </span>
+            }
 
-            </div>
 
+            mergeBtn.disabled = false;
 
-            <div class="technology-item">
+        }
 
-                <strong>
-                    Step 3
-                </strong>
+    </script>
 
-                <span>
-                    FastAPI merges the PDFs
-                </span>
-
-            </div>
-
-
-            <div class="technology-item">
-
-                <strong>
-                    Step 4
-                </strong>
-
-                <span>
-                    Download the merged PDF
-                </span>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- ==================================================
-         API INFORMATION
-    =================================================== -->
-
-    <section class="card">
-
-        <div class="section-header">
-
-            <div class="section-number">
-                3
-            </div>
-
-            <div>
-
-                <h2>
-                    API Information
-                </h2>
-
-                <p>
-                    FastAPI backend endpoints.
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <div class="api-grid">
-
-
-            <div class="api-item">
-
-                <span class="method get">
-                    GET
-                </span>
-
-                <code>
-                    /
-                </code>
-
-                <p>
-                    API information
-                </p>
-
-            </div>
-
-
-            <div class="api-item">
-
-                <span class="method get">
-                    GET
-                </span>
-
-                <code>
-                    /health
-                </code>
-
-                <p>
-                    Health check
-                </p>
-
-            </div>
-
-
-            <div class="api-item">
-
-                <span class="method post">
-                    POST
-                </span>
-
-                <code>
-                    /merge
-                </code>
-
-                <p>
-                    Merge PDF files
-                </p>
-
-            </div>
-
-
-            <div class="api-item">
-
-                <span class="method get">
-                    GET
-                </span>
-
-                <code>
-                    /info
-                </code>
-
-                <p>
-                    Application information
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <a
-            id="swaggerLink"
-            class="docs-button"
-            href="#"
-            target="_blank"
-        >
-            📘 Open Swagger API Documentation
-        </a>
-
-    </section>
-
-
-    <!-- ==================================================
-         TECHNOLOGY STACK
-    =================================================== -->
-
-    <section class="card">
-
-        <div class="section-header">
-
-            <div class="section-number">
-                4
-            </div>
-
-            <div>
-
-                <h2>
-                    Technology Stack
-                </h2>
-
-                <p>
-                    Technologies used in this project.
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <div class="technology-grid">
-
-
-            <div class="technology-item">
-
-                <strong>
-                    Frontend
-                </strong>
-
-                <span>
-                    HTML + CSS + JavaScript
-                </span>
-
-            </div>
-
-
-            <div class="technology-item">
-
-                <strong>
-                    Fronte
-```
+</body>
+     </html>
+     
