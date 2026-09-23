@@ -1,0 +1,20 @@
+{
+    "app_name": "PragyanAI MergePDF",
+    "version": "1.0.0",
+    "description": "PDF Merger using FastAPI and PyPDF",
+
+    "cors_origins": [
+        "*",
+        "https://peppy-bubblegum-5af459.netlify.app/"
+    ],
+
+    "max_upload_size_mb": 50,
+
+    "max_files": 20,
+
+    "allowed_file_types": [
+        ".pdf"
+    ],
+
+    "output_filename": "merged.pdf"
+}
