@@ -1,15 +1,45 @@
 {
-"app_name": "PragyanAI PDF Merger",
-"version": "1.0.0",
-"description": "PDF Merger using FastAPI and PyPDF",
+    "application": {
+        "name": "MergePDF",
+        "version": "1.0.0",
+        "debug": true
+    },
 
-```
-"cors_origins": [
-    "*",
-    "https://melodious-pithivier-7033a1.netlify.app/"
-],
+    "server": {
+        "host": "0.0.0.0",
+        "port": 8000
+    },
 
-"max_upload_size_mb": 10
-```
+    "pdf": {
+        "allowed_extensions": [
+            ".pdf"
+        ],
+        "max_files": 20,
+        "max_file_size_mb": 50,
+        "output_filename": "merged.pdf"
+    },
 
+    "folders": {
+        "upload": "uploads",
+        "output": "output",
+        "templates": "templates",
+        "static": "static"
+    },
+
+    "api": {
+        "merge_endpoint": "/merge",
+        "download_endpoint": "/download"
+    },
+
+    "cors": {
+        "allow_origins": [
+            "*"
+        ],
+        "allow_methods": [
+            "*"
+        ],
+        "allow_headers": [
+            "*"
+        ]
+    }
 }
