@@ -1,45 +1,20 @@
 {
-    "application": {
-        "name": "MergePDF",
-        "version": "1.0.0",
-        "debug": true
-    },
+    "app_name": "PragyanAI MergePDF",
+    "version": "1.0.0",
+    "description": "PDF Merger using FastAPI and PyPDF",
 
-    "server": {
-        "host": "0.0.0.0",
-        "port": 8000
-    },
+    "cors_origins": [
+        "*",
+        "https://peppy-bubblegum-5af459.netlify.app/"
+    ],
 
-    "pdf": {
-        "allowed_extensions": [
-            ".pdf"
-        ],
-        "max_files": 20,
-        "max_file_size_mb": 50,
-        "output_filename": "merged.pdf"
-    },
+    "max_upload_size_mb": 50,
 
-    "folders": {
-        "upload": "uploads",
-        "output": "output",
-        "templates": "templates",
-        "static": "static"
-    },
+    "max_files": 20,
 
-    "api": {
-        "merge_endpoint": "/merge",
-        "download_endpoint": "/download"
-    },
+    "allowed_file_types": [
+        ".pdf"
+    ],
 
-    "cors": {
-        "allow_origins": [
-            "*"
-        ],
-        "allow_methods": [
-            "*"
-        ],
-        "allow_headers": [
-            "*"
-        ]
-    }
+    "output_filename": "merged.pdf"
 }
