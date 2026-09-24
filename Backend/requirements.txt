@@ -1,5 +1,4 @@
 fastapi
-uvicorn[standard]
-pypdf
+uvicorn
 python-multipart
-jinja2
+pypdf
