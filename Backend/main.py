@@ -1,252 +1,73 @@
-import json
-import shutil
-from pathlib import Path
-
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import StreamingResponse
+from pypdf import PdfReader, PdfWriter
+import io
 
-from utils import merge_pdf_files
+app = FastAPI()
 
-
-# ============================================================
-# PATHS
-# ============================================================
-
-BASE_DIR = Path(__file__).resolve().parent
-
-CONFIG_FILE = BASE_DIR / "config.json"
-UPLOAD_DIR = BASE_DIR / "uploads"
-OUTPUT_DIR = BASE_DIR / "output"
-
-UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-
-
-# ============================================================
-# LOAD CONFIGURATION
-# ============================================================
-
-with open(CONFIG_FILE, "r", encoding="utf-8") as file:
-    config = json.load(file)
-
-
-APP_NAME = config["app_name"]
-APP_VERSION = config["version"]
-
-MAX_UPLOAD_SIZE_MB = config["max_upload_size_mb"]
-MAX_FILES = config["max_files"]
-
-ALLOWED_FILE_TYPES = tuple(
-    extension.lower()
-    for extension in config["allowed_file_types"]
-)
-
-OUTPUT_FILENAME = config["output_filename"]
-
-CORS_ORIGINS = config["cors_origins"]
-
-
-# ============================================================
-# FASTAPI APP
-# ============================================================
-
-app = FastAPI(
-    title=APP_NAME,
-    version=APP_VERSION
-)
-
-
-# ============================================================
-# CORS
-# ============================================================
-
+# Allow Netlify frontend to access backend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=CORS_ORIGINS,
+    allow_origins=["*"],
     allow_credentials=False,
     allow_methods=["*"],
-    allow_headers=["*"]
+    allow_headers=["*"],
 )
 
 
-# ============================================================
-# ROOT
-# ============================================================
-
 @app.get("/")
-async def home():
+def home():
     return {
-        "message": "MergePDF API is running",
-        "application": APP_NAME,
-        "version": APP_VERSION
+        "message": "PDF Merger Backend is running"
     }
 
-
-# ============================================================
-# HEALTH CHECK
-# ============================================================
-
-@app.get("/health")
-async def health():
-    return {
-        "status": "healthy"
-    }
-
-
-# ============================================================
-# MERGE PDF
-# ============================================================
 
 @app.post("/merge")
-async def merge_pdfs(
-    files: list[UploadFile] = File(...)
-):
-
-    # --------------------------------------------------------
-    # Check number of files
-    # --------------------------------------------------------
+async def merge_pdfs(files: list[UploadFile] = File(...)):
 
     if len(files) < 2:
         raise HTTPException(
             status_code=400,
-            detail="Please upload at least 2 PDF files."
+            detail="Please select at least 2 PDF files."
         )
 
-    if len(files) > MAX_FILES:
-        raise HTTPException(
-            status_code=400,
-            detail=f"You can upload maximum {MAX_FILES} PDF files."
-        )
-
-
-    uploaded_files = []
+    writer = PdfWriter()
 
     try:
+        for file in files:
 
-        # ----------------------------------------------------
-        # Save uploaded files
-        # ----------------------------------------------------
-
-        for index, uploaded_file in enumerate(files):
-
-            if not uploaded_file.filename:
+            if not file.filename.lower().endswith(".pdf"):
                 raise HTTPException(
                     status_code=400,
-                    detail="Invalid file name."
+                    detail=f"{file.filename} is not a PDF file."
                 )
 
-            extension = Path(
-                uploaded_file.filename
-            ).suffix.lower()
+            content = await file.read()
 
-            if extension not in ALLOWED_FILE_TYPES:
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"Only PDF files are allowed: "
-                           f"{uploaded_file.filename}"
-                )
+            pdf_file = io.BytesIO(content)
 
-            file_path = (
-                UPLOAD_DIR /
-                f"{index}_{Path(uploaded_file.filename).name}"
-            )
+            reader = PdfReader(pdf_file)
 
-            content = await uploaded_file.read()
+            for page in reader.pages:
+                writer.add_page(page)
 
-            max_size_bytes = (
-                MAX_UPLOAD_SIZE_MB * 1024 * 1024
-            )
+        output = io.BytesIO()
 
-            if len(content) > max_size_bytes:
-                raise HTTPException(
-                    status_code=400,
-                    detail=(
-                        f"{uploaded_file.filename} is larger than "
-                        f"{MAX_UPLOAD_SIZE_MB} MB."
-                    )
-                )
+        writer.write(output)
+        output.seek(0)
 
-            with open(file_path, "wb") as file:
-                file.write(content)
-
-            uploaded_files.append(str(file_path))
-
-
-        # ----------------------------------------------------
-        # Output file
-        # ----------------------------------------------------
-
-        output_file = OUTPUT_DIR / OUTPUT_FILENAME
-
-
-        # ----------------------------------------------------
-        # Merge PDFs
-        # ----------------------------------------------------
-
-        merge_pdf_files(
-            uploaded_files,
-            str(output_file)
-        )
-
-
-        # ----------------------------------------------------
-        # Return merged PDF
-        # ----------------------------------------------------
-
-        return FileResponse(
-            path=str(output_file),
+        return StreamingResponse(
+            output,
             media_type="application/pdf",
-            filename=OUTPUT_FILENAME
+            headers={
+                "Content-Disposition":
+                "attachment; filename=merged.pdf"
+            }
         )
 
-
-    except HTTPException:
-        raise
-
-    except Exception as error:
-
+    except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"PDF merge failed: {str(error)}"
+            detail=f"PDF merging failed: {str(e)}"
         )
-
-    finally:
-
-        # ----------------------------------------------------
-        # Delete temporary uploaded files
-        # ----------------------------------------------------
-
-        for file_path in uploaded_files:
-
-            try:
-
-                path = Path(file_path)
-
-                if path.exists():
-                    path.unlink()
-
-            except Exception:
-                pass
-
-
-# ============================================================
-# DOWNLOAD ENDPOINT
-# ============================================================
-
-@app.get("/download")
-async def download_pdf():
-
-    output_file = OUTPUT_DIR / OUTPUT_FILENAME
-
-    if not output_file.exists():
-        raise HTTPException(
-            status_code=404,
-            detail="Merged PDF not found."
-        )
-
-    return FileResponse(
-        path=str(output_file),
-        media_type="application/pdf",
-        filename=OUTPUT_FILENAME
-)
