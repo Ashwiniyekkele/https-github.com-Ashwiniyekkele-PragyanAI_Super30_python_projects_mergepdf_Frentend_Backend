@@ -1,11 +1,11 @@
-/* ============================================================
-   MergePDF - Main Stylesheet
-   ============================================================ */
+/* =====================================================
+   PDF MERGER - STYLE.CSS
+   ===================================================== */
 
 
-/* ============================================================
+/* =====================================================
    RESET
-   ============================================================ */
+   ===================================================== */
 
 * {
     margin: 0;
@@ -14,299 +14,534 @@
 }
 
 
-/* ============================================================
+/* =====================================================
    BODY
-   ============================================================ */
+   ===================================================== */
 
 body {
-    font-family: Arial, Helvetica, sans-serif;
-    background: #f4f6f8;
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f5f7fb,
+            #e9edf5
+        );
+
+    color: #222;
+
     min-height: 100vh;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    padding: 20px;
 }
 
 
-/* ============================================================
+/* =====================================================
    MAIN CONTAINER
-   ============================================================ */
+   ===================================================== */
 
 .container {
-    width: 100%;
-    max-width: 700px;
+    width: 92%;
+    max-width: 850px;
 
-    background: #ffffff;
+    margin: 0 auto;
 
-    padding: 35px;
-
-    border-radius: 15px;
-
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.12);
+    padding: 45px 0;
 }
 
 
-/* ============================================================
-   HEADING
-   ============================================================ */
+/* =====================================================
+   HEADER
+   ===================================================== */
 
-h1 {
+.header {
     text-align: center;
-
-    color: #222222;
-
-    font-size: 32px;
-
-    margin-bottom: 10px;
-}
-
-
-/* ============================================================
-   SUBTITLE
-   ============================================================ */
-
-.subtitle {
-    text-align: center;
-
-    color: #666666;
-
-    font-size: 16px;
 
     margin-bottom: 30px;
 }
 
 
-/* ============================================================
-   UPLOAD BOX
-   ============================================================ */
+.logo {
+    width: 70px;
+    height: 70px;
 
-.upload-box {
-    border: 2px dashed #777777;
+    margin: 0 auto 15px;
 
-    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-    padding: 35px;
+    background: #ffffff;
+
+    border-radius: 18px;
+
+    font-size: 36px;
+
+    box-shadow:
+        0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+
+.header h1 {
+    font-size: 40px;
+
+    font-weight: 700;
+
+    margin-bottom: 10px;
+
+    color: #1f2937;
+}
+
+
+.header p {
+    font-size: 17px;
+
+    color: #6b7280;
+
+    line-height: 1.6;
+}
+
+
+/* =====================================================
+   MAIN CARD
+   ===================================================== */
+
+.card {
+    background: #ffffff;
+
+    border-radius: 20px;
+
+    padding: 32px;
+
+    box-shadow:
+        0 15px 45px rgba(0, 0, 0, 0.08);
+}
+
+
+/* =====================================================
+   UPLOAD AREA
+   ===================================================== */
+
+.upload-area {
+    border: 2px dashed #b8bec9;
+
+    border-radius: 16px;
+
+    padding: 45px 25px;
 
     text-align: center;
 
-    cursor: pointer;
-
-    background: #fafafa;
+    background: #fafbfc;
 
     transition:
-        border-color 0.3s ease,
-        background 0.3s ease,
-        transform 0.3s ease;
-}
-
-
-/* Upload box hover */
-
-.upload-box:hover {
-    border-color: #007bff;
-
-    background: #f8fbff;
-
-    transform: translateY(-2px);
-}
-
-
-/* Upload text */
-
-.upload-box p {
-    color: #555555;
-
-    font-size: 16px;
-
-    margin-bottom: 18px;
-}
-
-
-/* ============================================================
-   FILE INPUT
-   ============================================================ */
-
-#pdfFiles {
-    display: none;
-}
-
-
-/* ============================================================
-   CHOOSE FILE BUTTON
-   ============================================================ */
-
-.choose-btn {
-    display: inline-block;
-
-    background: #007bff;
-
-    color: #ffffff;
-
-    padding: 12px 25px;
-
-    border-radius: 7px;
+        border-color 0.25s ease,
+        background 0.25s ease,
+        transform 0.25s ease;
 
     cursor: pointer;
+}
+
+
+.upload-area:hover {
+    border-color: #555;
+
+    background: #f7f7f7;
+}
+
+
+.upload-area.dragover {
+    border-color: #222;
+
+    background: #eeeeee;
+
+    transform: scale(1.01);
+}
+
+
+/* =====================================================
+   UPLOAD ICON
+   ===================================================== */
+
+.upload-icon {
+    font-size: 52px;
+
+    margin-bottom: 15px;
+}
+
+
+/* =====================================================
+   UPLOAD TITLE
+   ===================================================== */
+
+.upload-area h2 {
+    font-size: 24px;
+
+    margin-bottom: 10px;
+
+    color: #222;
+}
+
+
+.upload-area p {
+    color: #777;
+
+    font-size: 15px;
+
+    margin: 7px 0;
+}
+
+
+.or-text {
+    display: block;
+
+    color: #999;
+
+    margin: 12px 0;
+}
+
+
+/* =====================================================
+   BROWSE BUTTON
+   ===================================================== */
+
+.browse-btn {
+    border: none;
+
+    background: #222;
+
+    color: white;
+
+    padding: 13px 25px;
+
+    border-radius: 9px;
 
     font-size: 15px;
 
     font-weight: 600;
 
-    transition: background 0.3s ease;
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
 }
 
 
-.choose-btn:hover {
-    background: #0056b3;
+.browse-btn:hover {
+    background: #444;
+
+    transform: translateY(-1px);
 }
 
 
-/* ============================================================
+.browse-btn:active {
+    transform: translateY(0);
+}
+
+
+.upload-info {
+    font-size: 13px !important;
+
+    color: #999 !important;
+
+    margin-top: 18px !important;
+}
+
+
+/* =====================================================
    FILE SECTION
-   ============================================================ */
+   ===================================================== */
 
-.file-section {
-    margin-top: 25px;
+.files-section {
+    margin-top: 32px;
 }
 
 
-.file-section h3 {
-    color: #333333;
+.section-header {
+    display: flex;
 
-    font-size: 18px;
+    align-items: center;
 
-    margin-bottom: 12px;
+    justify-content: space-between;
+
+    margin-bottom: 15px;
 }
 
 
-/* ============================================================
+.section-header h2 {
+    font-size: 20px;
+
+    color: #222;
+}
+
+
+.section-header span {
+    background: #f0f1f3;
+
+    color: #666;
+
+    padding: 6px 12px;
+
+    border-radius: 20px;
+
+    font-size: 13px;
+}
+
+
+/* =====================================================
    FILE LIST
-   ============================================================ */
+   ===================================================== */
 
-#fileList {
-    list-style: none;
+.file-list {
+    display: flex;
 
-    width: 100%;
+    flex-direction: column;
+
+    gap: 10px;
 }
 
 
-/* ============================================================
+/* =====================================================
+   EMPTY MESSAGE
+   ===================================================== */
+
+.empty-message {
+    text-align: center;
+
+    padding: 30px 20px;
+
+    border: 1px solid #eeeeee;
+
+    border-radius: 12px;
+
+    background: #fafafa;
+
+    color: #777;
+}
+
+
+.empty-icon {
+    font-size: 35px;
+
+    margin-bottom: 10px;
+}
+
+
+.empty-message p {
+    font-size: 15px;
+
+    margin-bottom: 5px;
+}
+
+
+.empty-message small {
+    color: #999;
+}
+
+
+/* =====================================================
    FILE ITEM
-   ============================================================ */
+   ===================================================== */
 
 .file-item {
     display: flex;
 
-    justify-content: space-between;
-
     align-items: center;
 
-    gap: 10px;
+    justify-content: space-between;
 
-    background: #f1f3f5;
+    gap: 15px;
 
-    padding: 12px 15px;
+    padding: 14px 16px;
 
-    margin-bottom: 8px;
+    background: #f7f8fa;
 
-    border-radius: 7px;
+    border: 1px solid #e5e7eb;
 
-    border: 1px solid #e0e0e0;
+    border-radius: 11px;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
 }
 
 
-/* ============================================================
-   FILE NAME
-   ============================================================ */
+.file-item:hover {
+    background: #f1f2f4;
+
+    transform: translateY(-1px);
+}
+
+
+/* =====================================================
+   FILE INFORMATION
+   ===================================================== */
+
+.file-info {
+    display: flex;
+
+    align-items: center;
+
+    gap: 13px;
+
+    min-width: 0;
+}
+
+
+.file-icon {
+    width: 42px;
+    height: 42px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: #ffffff;
+
+    border-radius: 9px;
+
+    font-size: 23px;
+}
+
+
+.file-details {
+    min-width: 0;
+}
+
 
 .file-name {
-    color: #333333;
+    font-size: 15px;
 
-    font-size: 14px;
+    font-weight: 600;
+
+    color: #333;
 
     overflow: hidden;
 
     text-overflow: ellipsis;
 
     white-space: nowrap;
-
-    max-width: 80%;
 }
 
 
-/* ============================================================
+.file-size {
+    margin-top: 4px;
+
+    font-size: 12px;
+
+    color: #888;
+}
+
+
+/* =====================================================
    REMOVE BUTTON
-   ============================================================ */
+   ===================================================== */
 
 .remove-btn {
-    border: none;
+    flex-shrink: 0;
 
-    background: #dc3545;
-
-    color: #ffffff;
-
-    padding: 7px 12px;
-
-    border-radius: 5px;
-
-    cursor: pointer;
-
-    font-size: 13px;
-
-    transition: background 0.3s ease;
-}
-
-
-.remove-btn:hover {
-    background: #b02a37;
-}
-
-
-/* ============================================================
-   MERGE BUTTON
-   ============================================================ */
-
-.merge-btn {
-    width: 100%;
-
-    margin-top: 25px;
-
-    padding: 14px;
+    width: 35px;
+    height: 35px;
 
     border: none;
 
     border-radius: 8px;
 
-    background: #28a745;
+    background: #e8e8e8;
 
-    color: #ffffff;
+    color: #444;
 
-    font-size: 17px;
+    font-size: 15px;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+
+.remove-btn:hover {
+    background: #d5d5d5;
+
+    transform: scale(1.05);
+}
+
+
+/* =====================================================
+   ACTION BUTTONS
+   ===================================================== */
+
+.action-buttons {
+    display: flex;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-top: 28px;
+}
+
+
+.clear-btn,
+.merge-btn {
+    flex: 1;
+
+    border: none;
+
+    border-radius: 10px;
+
+    padding: 14px 20px;
+
+    font-size: 15px;
 
     font-weight: 600;
 
     cursor: pointer;
 
     transition:
-        background 0.3s ease,
+        background 0.2s ease,
         transform 0.2s ease;
 }
 
 
-.merge-btn:hover:not(:disabled) {
-    background: #218838;
+.clear-btn {
+    background: #eeeeee;
+
+    color: #333;
+}
+
+
+.clear-btn:hover {
+    background: #dddddd;
 
     transform: translateY(-1px);
 }
 
 
-/* Disabled merge button */
+.merge-btn {
+    background: #222;
+
+    color: white;
+}
+
+
+.merge-btn:hover:not(:disabled) {
+    background: #444;
+
+    transform: translateY(-1px);
+}
+
 
 .merge-btn:disabled {
-    background: #aaaaaa;
+    background: #b5b5b5;
+
+    color: #eeeeee;
 
     cursor: not-allowed;
 
@@ -314,201 +549,241 @@ h1 {
 }
 
 
-/* ============================================================
-   STATUS MESSAGE
-   ============================================================ */
+/* =====================================================
+   MESSAGE
+   ===================================================== */
 
-#status {
-    text-align: center;
+.message {
+    min-height: 25px;
 
     margin-top: 20px;
 
-    font-size: 15px;
+    text-align: center;
+
+    font-size: 14px;
 
     font-weight: 600;
-
-    min-height: 20px;
 }
 
 
-/* ============================================================
-   DOWNLOAD SECTION
-   ============================================================ */
+.message.success {
+    color: #2f6b3f;
+}
 
-#downloadLink {
-    display: none;
+
+.message.error {
+    color: #a33a3a;
+}
+
+
+.message.loading {
+    color: #555;
+}
+
+
+/* =====================================================
+   DOWNLOAD SECTION
+   ===================================================== */
+
+.download-section {
+    margin-top: 28px;
+
+    padding: 30px 20px;
 
     text-align: center;
 
-    margin-top: 18px;
+    border-radius: 14px;
+
+    background: #f5f6f7;
+
+    border: 1px solid #e1e3e6;
 }
 
 
-/* ============================================================
-   DOWNLOAD BUTTON
-   ============================================================ */
+.success-icon {
+    font-size: 42px;
 
-#downloadLink a {
+    margin-bottom: 10px;
+}
+
+
+.download-section h2 {
+    font-size: 22px;
+
+    margin-bottom: 10px;
+
+    color: #222;
+}
+
+
+.download-section p {
+    color: #777;
+
+    margin-bottom: 20px;
+
+    font-size: 14px;
+}
+
+
+/* =====================================================
+   DOWNLOAD BUTTON
+   ===================================================== */
+
+.download-btn {
     display: inline-block;
 
-    background: #6f42c1;
+    background: #222;
 
     color: #ffffff;
 
     text-decoration: none;
 
-    padding: 12px 25px;
+    padding: 13px 24px;
 
-    border-radius: 7px;
+    border-radius: 9px;
 
     font-size: 15px;
 
     font-weight: 600;
 
-    transition: background 0.3s ease;
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
 }
 
 
-#downloadLink a:hover {
-    background: #59339d;
+.download-btn:hover {
+    background: #444;
+
+    transform: translateY(-1px);
 }
 
 
-/* ============================================================
-   RESPONSIVE DESIGN - TABLET
-   ============================================================ */
+/* =====================================================
+   FOOTER
+   ===================================================== */
 
-@media (max-width: 768px) {
+footer {
+    text-align: center;
+
+    padding: 25px 0 5px;
+
+    color: #777;
+
+    font-size: 13px;
+}
+
+
+footer p {
+    font-weight: 600;
+
+    margin-bottom: 5px;
+}
+
+
+footer span {
+    color: #999;
+}
+
+
+/* =====================================================
+   RESPONSIVE DESIGN
+   ===================================================== */
+
+@media (max-width: 700px) {
 
     .container {
-        max-width: 600px;
+        width: 94%;
 
-        padding: 30px;
+        padding: 25px 0;
     }
 
-    h1 {
+
+    .card {
+        padding: 22px;
+    }
+
+
+    .header h1 {
+        font-size: 32px;
+    }
+
+
+    .header p {
+        font-size: 15px;
+    }
+
+
+    .upload-area {
+        padding: 35px 15px;
+    }
+
+
+    .upload-area h2 {
+        font-size: 21px;
+    }
+
+
+    .action-buttons {
+        flex-direction: column;
+    }
+
+
+    .clear-btn,
+    .merge-btn {
+        width: 100%;
+    }
+
+}
+
+
+/* =====================================================
+   SMALL MOBILE DEVICES
+   ===================================================== */
+
+@media (max-width: 450px) {
+
+    .container {
+        width: 96%;
+    }
+
+
+    .card {
+        padding: 17px;
+    }
+
+
+    .header h1 {
         font-size: 28px;
     }
 
-    .upload-box {
-        padding: 30px;
-    }
-}
 
+    .logo {
+        width: 60px;
+        height: 60px;
 
-/* ============================================================
-   RESPONSIVE DESIGN - MOBILE
-   ============================================================ */
-
-@media (max-width: 600px) {
-
-    body {
-        padding: 15px;
-
-        align-items: flex-start;
+        font-size: 30px;
     }
 
 
-    .container {
-        width: 100%;
-
-        margin-top: 20px;
-
-        padding: 22px;
-
-        border-radius: 12px;
-    }
-
-
-    h1 {
-        font-size: 26px;
-    }
-
-
-    .subtitle {
-        font-size: 14px;
-
-        margin-bottom: 22px;
-    }
-
-
-    .upload-box {
-        padding: 25px 15px;
-    }
-
-
-    .upload-box p {
-        font-size: 14px;
+    .upload-icon {
+        font-size: 42px;
     }
 
 
     .file-item {
-        padding: 10px;
-
-        align-items: center;
+        padding: 11px;
     }
 
 
     .file-name {
-        font-size: 13px;
-
-        max-width: 65%;
+        max-width: 180px;
     }
 
 
     .remove-btn {
-        padding: 6px 9px;
-
-        font-size: 12px;
-    }
-
-
-    .merge-btn {
-        font-size: 16px;
-
-        padding: 13px;
+        width: 32px;
+        height: 32px;
     }
 
 }
-
-
-/* ============================================================
-   VERY SMALL MOBILE SCREENS
-   ============================================================ */
-
-@media (max-width: 400px) {
-
-    .container {
-        padding: 18px;
-    }
-
-
-    h1 {
-        font-size: 23px;
-    }
-
-
-    .choose-btn {
-        padding: 10px 18px;
-
-        font-size: 14px;
-    }
-
-
-    .file-item {
-        flex-direction: column;
-
-        align-items: stretch;
-    }
-
-
-    .file-name {
-        max-width: 100%;
-    }
-
-
-    .remove-btn {
-        width: 100%;
-    }
-
-   }
