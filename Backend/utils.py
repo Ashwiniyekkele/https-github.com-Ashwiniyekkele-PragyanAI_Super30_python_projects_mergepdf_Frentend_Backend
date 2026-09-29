@@ -1,91 +1,93 @@
-from pathlib import Path
-
-from pypdf import PdfWriter, PdfReader
-
-
-ALLOWED_EXTENSIONS = {".pdf"}
+import io
+from pypdf import PdfReader, PdfWriter
 
 
-def is_valid_pdf(filename: str) -> bool:
+def validate_pdf_file(filename: str, content: bytes, max_size_mb: int = 50):
+    """
+    Validate an uploaded PDF file.
+    """
 
+    # Check filename
     if not filename:
-        return False
+        return False, "File name is missing."
 
-    extension = Path(filename).suffix.lower()
+    # Check extension
+    if not filename.lower().endswith(".pdf"):
+        return False, f"{filename} is not a PDF file."
 
-    return extension in ALLOWED_EXTENSIONS
+    # Check empty file
+    if not content:
+        return False, f"{filename} is empty."
 
+    # Check file size
+    max_size_bytes = max_size_mb * 1024 * 1024
 
-def validate_pdf(file_path: str) -> bool:
+    if len(content) > max_size_bytes:
+        return False, (
+            f"{filename} exceeds the "
+            f"{max_size_mb} MB file size limit."
+        )
 
+    # Check whether PDF can actually be read
     try:
+        pdf_stream = io.BytesIO(content)
+        reader = PdfReader(pdf_stream)
 
-        reader = PdfReader(file_path)
-
+        # Access pages to make sure the PDF is readable
         len(reader.pages)
 
-        return True
-
     except Exception:
+        return False, f"{filename} is corrupted or cannot be read."
 
-        return False
+    return True, None
 
 
-def merge_pdf_files(
-    input_files: list[str],
-    output_file: str
-) -> str:
+def merge_pdf_files(pdf_files):
+    """
+    Merge multiple PDF byte contents into one PDF.
 
-    if not input_files:
-        raise ValueError(
-            "No PDF files were provided."
-        )
-
-    if len(input_files) < 2:
-        raise ValueError(
-            "At least 2 PDF files are required."
-        )
+    pdf_files should be a list of tuples:
+    [
+        ("file1.pdf", b"..."),
+        ("file2.pdf", b"...")
+    ]
+    """
 
     writer = PdfWriter()
 
-    try:
+    for filename, content in pdf_files:
 
-        for file_path in input_files:
+        pdf_stream = io.BytesIO(content)
 
-            path = Path(file_path)
+        reader = PdfReader(pdf_stream)
 
-            if not path.exists():
-                raise FileNotFoundError(
-                    f"File not found: {path}"
-                )
+        for page in reader.pages:
+            writer.add_page(page)
 
-            if path.suffix.lower() not in ALLOWED_EXTENSIONS:
-                raise ValueError(
-                    f"Invalid file type: {path.name}"
-                )
+    output = io.BytesIO()
 
-            if not validate_pdf(str(path)):
-                raise ValueError(
-                    f"Invalid or corrupted PDF: {path.name}"
-                )
+    writer.write(output)
 
-            writer.append(str(path))
+    output.seek(0)
+
+    return output
 
 
-        output_path = Path(output_file)
+def get_pdf_page_count(content: bytes):
+    """
+    Return the number of pages in a PDF.
+    """
 
-        output_path.parent.mkdir(
-            parents=True,
-            exist_ok=True
-        )
+    pdf_stream = io.BytesIO(content)
 
-        with open(output_path, "wb") as file:
+    reader = PdfReader(pdf_stream)
 
-            writer.write(file)
+    return len(reader.pages)
 
 
-        return str(output_path)
+def get_file_size_mb(content: bytes):
+    """
+    Return file size in MB.
+    """
 
-    finally:
-
-        writer.close()
+    return len(content) / (1024 * 1024)
